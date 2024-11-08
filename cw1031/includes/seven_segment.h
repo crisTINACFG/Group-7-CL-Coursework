@@ -33,11 +33,31 @@ static const unsigned int ALL_SEGMENTS[] = {SEGMENT_A, SEGMENT_B, SEGMENT_C, SEG
 
 // You will need to extend the array to include more letters.
 uint8_t values[] = {
-    0b11111100,         // 0
-    0b01100000,         // 1
-    0b11011010,         // 2
-    0b11110010,         // 3
-    0b01100110         // 4
+0b00111110,
+0b10011100,
+0b01111010,
+0b10011110,
+0b10001110,
+0b11110110,
+0b01101110,
+0b00001100,
+0b01111000,
+0b01101110,
+0b00011100,
+0b10101000,
+0b00101010,
+0b11111100,
+0b11001110,
+0b11100110,
+0b00001010,
+0b10110110,
+0b00011110,
+0b01111100,
+0b00111000,
+0b01010100,
+0b01101110,
+0b01110110,
+0b11011010
 };
 
 
@@ -53,6 +73,11 @@ void seven_segment_init() {
 void seven_segment_off() {
     for (unsigned int i = 0; i < ALL_SEGMENTS_COUNT; i++) {
         gpio_put(ALL_SEGMENTS[i], true);
+    }
+}
+void seven_segment_on(){
+    for (unsigned int i = 0; i < ALL_SEGMENTS_COUNT; i++) {
+        gpio_put(ALL_SEGMENTS[i], false);
     }
 }
 
