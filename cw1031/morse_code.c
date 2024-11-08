@@ -15,6 +15,8 @@
 // declare global variables e.g., the time when the button is pressed 
 int pressed ;
 
+// hello it is me 
+
 // --------------------------------------------------------------------
 // declare the function definitions, e.g, decoder(...); and ther functions
 // given the user input, you can decode if the input is a character
