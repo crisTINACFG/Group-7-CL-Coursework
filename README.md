@@ -1,11 +1,12 @@
-### TO STORE TOKEN:
-<br />
+### TO STORE TOKEN: <br />
+
 <span style="color: pink;">git config --global credential.helper cache</span><br />
 or <br />
 <span style="color: pink;">git config --global credential.helper store</span><br />
 <br />
 <br />
 ### BRANCHING <br />
+
 Check Your Current Branch = <span style="color: pink;">git branch</span><br />
 Create a New Branch = <span style="color: pink;">git checkout -b new-branch-name</span> (this automatically switches to that branch)<br />
 Switch Between Branches = <span style="color: pink;">git checkout branch-name</span><br />
