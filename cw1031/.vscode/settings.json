@@ -1,0 +1,21 @@
+{
+  "debug.saveBeforeStart": "allEditorsInActiveGroup",
+  "debug.enableStatusBarColor": true,
+  "debug.showInStatusBar": "always",
+  "debug.toolBarLocation": "floating",
+  "cmake.statusbar.advanced": {
+    "launch": {
+      "visibility": "hidden"
+    },
+    "buildTarget": {
+      "visibility": "hidden"
+    }
+  },
+  "cmake.buildBeforeRun": true,
+  "cmake.showSystemKits": false,
+  "C_Cpp.debugShortcut": false,
+  "memory-view.showMemoryPanel": false,
+  "mcu-debug.rtos-views.showRTOS": false,
+  "git.openRepositoryInParentFolders": "never",
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+}

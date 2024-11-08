@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Pico Build",
+    "compilers": {
+      "C": "arm-none-eabi-gcc",
+      "CXX": "arm-none-eabi-g++"
+    },
+    "isTrusted": true
+  }
+]
