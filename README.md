@@ -11,6 +11,7 @@ Check Your Current Branch = <span style="color: pink;">git branch</span><br />
 Create a New Branch = <span style="color: pink;">git checkout -b new-branch-name</span> (this automatically switches to that branch)<br />
 Switch Between Branches = <span style="color: pink;">git checkout branch-name</span><br />
 List All Branches = <span style="color: pink;">git branch -a</span><br />
+Make current branch the same as main git rebase origin/main<br />
 <br />
 ### PUSHING <br />
 Stage Changes for Commit = <span style="color: pink;">git add .</span><br />
