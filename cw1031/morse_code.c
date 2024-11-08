@@ -2,20 +2,21 @@
  * The given template is a guideline for your coursework only.
  * You are free to edit/create any functions and variables.
  * You can add extra C files if required.
-*/
-
+ */
 
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdlib.h"
 #include "includes/seven_segment.h"
+#define DOT_THRESHOLD 250
+#define INTERLETTER 700
+#define INTERSIGNAL 100
+#define BUTTON_PIN 16 // Pin 21 (GPIO 16)
 
-#define BUTTON_PIN			16	// Pin 21 (GPIO 16)
+// declare global variables e.g., the time when the button is pressed
+int pressed;
 
-// declare global variables e.g., the time when the button is pressed 
-int pressed ;
-
-// hello it is me 
+// hello it is me
 
 // --------------------------------------------------------------------
 // declare the function definitions, e.g, decoder(...); and ther functions
@@ -25,12 +26,12 @@ void decoder();
 // check if the button press is a dot or a dash
 void checkButton();
 
-int main() {
-	const char morse_code[] = { 
-    ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", 
-    "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", 
-    "..-", "...-", ".--", "-..-", "-.--", "--.." 
-}; 
+int main()
+{
+	const char morse_code[] = {
+		".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
+		"-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
+		"..-", "...-", ".--", "-..-", "-.--", "--.."};
 	timer_hw->dbgpause = 0;
 	stdio_init_all();
 
@@ -45,25 +46,55 @@ int main() {
 	gpio_set_dir(BUTTON_PIN, GPIO_IN);
 	gpio_pull_down(BUTTON_PIN); // Pull the button pin towards ground (with an internal pull-down resistor).
 
-	while (true) {
+	while (true)
+	{
 
-		while (gpio_get(BUTTON_PIN)){			
-            // record how long the button is pressed
-            // .....
-			printf("This line is a test\n");  // you can remove this line
-			sleep_ms(150); // adjust the sleep_ms as required
-		} 
-        // check if the button press is a dot or a dash
+		while (gpio_get(BUTTON_PIN))
+		{
+			// record how long the button is pressed
+			// .....
+			printf("This line is a test\n"); // you can remove this line
+			sleep_ms(150);					 // adjust the sleep_ms as required
+		}
+		// check if the button press is a dot or a dash
 		checkButton();
 	}
 }
 
-void decoder(){
-    // a function to be implemented
+void decoder()
+{
+	// a function to be implemented
 }
 
-void checkButton(){
+void checkButton()
+{
+	int index = 0;
+	int button_pressed();
+	char morse_code[];
+	while (true)
+	{
+		while (button_pressed())
+			;
+		start_time = clock();
+		while (!button_pressed())
+			;
+		end_time = clock();
 
-    // a function to be implemented
+		// The time it was pressed for
+		timePressed = (int)(end_time - start_time);
+	}
+	if (timePressed < DOT_THRESHOLD)
+	{
+		morse_code[index++] = '.';
+	}
+	else if (timePressed >= 250 && timePressed < 700)
+	{
+		morse_code[index++] = '-';
+	}
+	if(timePressed > 700){
+		decoder(morse_code);
+		morse_code = '\0';
+	}
+	/* We want a string variable to store the morse code
+	if User waits more that 700ms the string decoder is used and then reset*/
 }
-
