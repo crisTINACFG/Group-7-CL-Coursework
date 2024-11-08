@@ -26,20 +26,27 @@ void decoder();
 // check if the button press is a dot or a dash
 void checkButton();
 
-int main()
-{
-	const char morse_code[] = {
-		".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
-		"-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
-		"..-", "...-", ".--", "-..-", "-.--", "--.."};
+int main() {
+	
+	const char morse_code[] =
+ { 
+    ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", 
+    "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", 
+    "..-", "...-", ".--", "-..-", "-.--", "--.." 
+}; 
+
 	timer_hw->dbgpause = 0;
 	stdio_init_all();
 
 	// Initialise the seven segment display.
 	seven_segment_init();
 
-	// Turn the seven segment display off when the program starts.
-	seven_segment_off();
+
+	// Turn the seven segment display on for 500 milliseconds when the program starts.
+	// Print in terminal "Welcome" (But it doesnt! ???????)
+	seven_segment_on();
+	sleep_ms(500);
+	prinf("Welcome!");
 
 	// Initialise the button's GPIO pin.
 	gpio_init(BUTTON_PIN);
