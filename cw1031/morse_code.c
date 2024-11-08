@@ -9,6 +9,10 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "includes/seven_segment.h"
+#define DOT_THRESHOLD 250
+#define INTERLETTER 700
+#define INTERSIGNAL 400
+#define BUTTON_PIN 16 // Pin 21 (GPIO 16)
 
 #define BUTTON_PIN			16	// Pin 21 (GPIO 16)
 
@@ -22,6 +26,16 @@ void decoder();
 
 // check if the button press is a dot or a dash
 void checkButton();
+
+const char morse_code[] =
+
+{
+".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
+"-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
+"..-", "...-", ".--", "-..-", "-.--", "--.." 
+};
+
+
 
 int main() {
 	timer_hw->dbgpause = 0;
@@ -51,12 +65,49 @@ int main() {
 	}
 }
 
-void decoder(){
-    // a function to be implemented
+void decoder(const char *input){
+    for (int i = 0; i < 26; i++) {
+	if (strcmp(input, morse_code[i]) == 0) { //Based on: https://www.geeksforgeeks.org/strcmp-in-c/
+		seven_segment_show(values[i]);
+		return;
+		}
+	}
+	printf("Error: This morse code is unrecognized.\n");
 }
 
-void checkButton(){
+void checkButton() {
+	int index = 0;
+	bool button_pressed = gpio_get(BUTTON_PIN);
+	uint32_t start_time, end_time, timePressed;
 
-    // a function to be implemented
+	while (true) {
+		while (button_pressed == 0) {
+			sleep_ms(10);
+		}
+		start_time = time_us_32();
+
+		while (button_pressed == 1) {
+			sleep_ms(10);
+		}
+		end_time = time_us_32();
+
+		// The time it was pressed for
+		timePressed = (end_time - start_time) / 1000;
+	}
+
+	if (timePressed < DOT_THRESHOLD) {
+		morse_code[index++] = '.';
+	}	
+	else if (timePressed >= DOT_THRESHOLD && timePressed < INTERLETTER) {
+		morse_code[index++] = '-';
+	}
+	if(timePressed > INTERLETTER) {
+		decoder(morse_code);
+		memset(morse_code, 0, sizeof(morse_code));
+		index = 0;
+	}
+/* We want a string variable to store the morse code
+if User waits more that 700ms the string decoder is used and then reset*/
+
 }
 
