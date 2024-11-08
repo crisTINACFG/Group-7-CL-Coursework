@@ -17,7 +17,10 @@
 int pressed;
 
 // hello it is me
-
+const char morse_code[] = {
+		".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
+		"-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
+		"..-", "...-", ".--", "-..-", "-.--", "--.."};
 // --------------------------------------------------------------------
 // declare the function definitions, e.g, decoder(...); and ther functions
 // given the user input, you can decode if the input is a character
@@ -25,6 +28,7 @@ void decoder();
 
 // check if the button press is a dot or a dash
 void checkButton();
+
 
 int main() {
 	
@@ -53,7 +57,9 @@ int main() {
 	gpio_set_dir(BUTTON_PIN, GPIO_IN);
 	gpio_pull_down(BUTTON_PIN); // Pull the button pin towards ground (with an internal pull-down resistor).
 
-	while (true)
+	checkButton();
+
+	/*while (true)
 	{
 
 		while (gpio_get(BUTTON_PIN))
@@ -65,12 +71,19 @@ int main() {
 		}
 		// check if the button press is a dot or a dash
 		checkButton();
-	}
+	}*/
 }
 
-void decoder()
-{
-	// a function to be implemented
+void decoder(const char *input) {
+    for (int i = 0; i < 26; i++) {
+        if (strcmp(input, morse_code[i]) == 0) { //Based on: https://www.geeksforgeeks.org/strcmp-in-c/
+            if (i < 26) {
+                seven_segment_show(values[i]);
+            }
+            return;
+        }
+    }
+    printf("Error: This morse code is unrecognized.\n");
 }
 
 void checkButton()
