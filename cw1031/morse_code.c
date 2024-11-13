@@ -89,7 +89,7 @@ void checkButton() {
 	}
 	if(timePressed > INTERLETTER) {
 		decoder(morse_input);
-		char morse_input[4] = {0};
+		char morse_input[4] = {0}; //this should be resetting the morse_input string so that you can start another letter!!
 	}
 /* We want a string variable to store the morse code
 if User waits more that 700ms the string decoder is used and then reset*/
