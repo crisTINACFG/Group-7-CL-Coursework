@@ -33,6 +33,7 @@ static const unsigned int ALL_SEGMENTS[] = {SEGMENT_A, SEGMENT_B, SEGMENT_C, SEG
 
 // You will need to extend the array to include more letters.
 uint8_t values[] = {
+0b11101110,
 0b00111110,
 0b10011100,
 0b01111010,

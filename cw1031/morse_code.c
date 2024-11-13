@@ -9,58 +9,44 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "includes/seven_segment.h"
+#include "hardware/gpio.h"
+
 #define DOT_THRESHOLD 250
 #define INTERLETTER 700
 #define INTERSIGNAL 400
-#define BUTTON_PIN 16 // Pin 21 (GPIO 16)
-
-#define BUTTON_PIN			16	// Pin 21 (GPIO 16)
+#define BUTTON_PIN 16
 
 // declare global variables e.g., the time when the button is pressed 
-int pressed ;
 
-// --------------------------------------------------------------------
-// declare the function definitions, e.g, decoder(...); and ther functions
-// given the user input, you can decode if the input is a character
-void decoder();
-
-// check if the button press is a dot or a dash
+// Function prototypes
 void checkButton();
+void decoder(const char *input);
 
-const char morse_code[] =
-
+const char morse_code[26][5] =
 {
 ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
 "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
 "..-", "...-", ".--", "-..-", "-.--", "--.." 
 };
 
-
-
 int main() {
 	timer_hw->dbgpause = 0;
 	stdio_init_all();
 
+	//Print Welcome
+	printf("Welcome \n");
+
 	// Initialise the seven segment display.
 	seven_segment_init();
-
-	// Turn the seven segment display off when the program starts.
+	sleep_ms(1000);
 	seven_segment_off();
 
-	// Initialise the button's GPIO pin.
+	//Initialise the button's GPIO pin.
 	gpio_init(BUTTON_PIN);
 	gpio_set_dir(BUTTON_PIN, GPIO_IN);
 	gpio_pull_down(BUTTON_PIN); // Pull the button pin towards ground (with an internal pull-down resistor).
-
-	while (true) {
-
-		while (gpio_get(BUTTON_PIN)){			
-            // record how long the button is pressed
-            // .....
-			printf("This line is a test\n");  // you can remove this line
-			sleep_ms(150); // adjust the sleep_ms as required
-		} 
-        // check if the button press is a dot or a dash
+	
+	while(true){
 		checkButton();
 	}
 }
@@ -77,16 +63,16 @@ void decoder(const char *input){
 
 void checkButton() {
 	int index = 0;
-	bool button_pressed = gpio_get(BUTTON_PIN);
-	uint32_t start_time, end_time, timePressed;
+	char morse_input[4] = {0}; // Buffer to store a single Morse character sequence
+    uint32_t start_time, end_time, timePressed;
 
 	while (true) {
-		while (button_pressed == 0) {
+		while (gpio_get(BUTTON_PIN)) {
 			sleep_ms(10);
 		}
 		start_time = time_us_32();
 
-		while (button_pressed == 1) {
+		while (!gpio_get(BUTTON_PIN)) {
 			sleep_ms(10);
 		}
 		end_time = time_us_32();
@@ -94,17 +80,16 @@ void checkButton() {
 		// The time it was pressed for
 		timePressed = (end_time - start_time) / 1000;
 	}
-
+	//Check if press is dot or dash
 	if (timePressed < DOT_THRESHOLD) {
-		morse_code[index++] = '.';
+		morse_input[index++]= '.';
 	}	
 	else if (timePressed >= DOT_THRESHOLD && timePressed < INTERLETTER) {
-		morse_code[index++] = '-';
+		morse_input[index++] = '-';
 	}
 	if(timePressed > INTERLETTER) {
-		decoder(morse_code);
-		memset(morse_code, 0, sizeof(morse_code));
-		index = 0;
+		decoder(morse_input);
+		char morse_input[4] = {0};
 	}
 /* We want a string variable to store the morse code
 if User waits more that 700ms the string decoder is used and then reset*/
