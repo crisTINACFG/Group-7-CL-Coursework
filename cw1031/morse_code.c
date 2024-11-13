@@ -9,24 +9,25 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "includes/seven_segment.h"
+// Define
 #define DOT_THRESHOLD 250
 #define INTERLETTER 700
 #define INTERSIGNAL 400
-#define BUTTON_PIN 16;
+#define BUTTON_PIN 16
 // Pin 21 (GPIO 16)
 
-// #define BUTTON_PIN 16	// Pin 21 (GPIO 16)
+//  #define BUTTON_PIN 16	// Pin 21 (GPIO 16)
 
-// declare global variables e.g., the time when the button is pressed 
-int pressed ;
+// // declare global variables e.g., the time when the button is pressed 
+// int pressed ;
 
-// --------------------------------------------------------------------
-// declare the function definitions, e.g, decoder(...); and ther functions
-// given the user input, you can decode if the input is a character
-// void decoder();
+// // --------------------------------------------------------------------
+// // declare the function definitions, e.g, decoder(...); and ther functions
+// // given the user input, you can decode if the input is a character
+// // void decoder();
 
-// check if the button press is a dot or a dash
-void checkButton();
+// // check if the button press is a dot or a dash
+// void checkButton();
 
 const char morse_code[][26] =
 {
@@ -34,8 +35,11 @@ const char morse_code[][26] =
 "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
 "..-", "...-", ".--", "-..-", "-.--", "--.." 
 };
-
-
+void seven_segment_init();
+void seven_segment_show(char value);
+void seven_segment_off();
+void checkButton();
+void decoder(const char *input);
 
 int main() {
 	timer_hw->dbgpause = 0;
