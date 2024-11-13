@@ -39,16 +39,16 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/user/HS401/cg01237/Downloads/cw1031/build/pico-sdk/tools/cmake_install.cmake")
+  include("/user/HS401/mk02523/Course Work/Group-7-CL-Coursework/cw1031/build/pico-sdk/tools/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/user/HS401/cg01237/Downloads/cw1031/build/pico-sdk/src/cmake_install.cmake")
+  include("/user/HS401/mk02523/Course Work/Group-7-CL-Coursework/cw1031/build/pico-sdk/src/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/user/HS401/cg01237/Downloads/cw1031/build/pico-sdk/docs/cmake_install.cmake")
+  include("/user/HS401/mk02523/Course Work/Group-7-CL-Coursework/cw1031/build/pico-sdk/docs/cmake_install.cmake")
 endif()
 

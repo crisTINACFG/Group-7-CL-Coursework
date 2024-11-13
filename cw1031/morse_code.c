@@ -12,9 +12,10 @@
 #define DOT_THRESHOLD 250
 #define INTERLETTER 700
 #define INTERSIGNAL 400
-#define BUTTON_PIN 16 // Pin 21 (GPIO 16)
+#define BUTTON_PIN 16;
+// Pin 21 (GPIO 16)
 
-#define BUTTON_PIN			16	// Pin 21 (GPIO 16)
+// #define BUTTON_PIN 16	// Pin 21 (GPIO 16)
 
 // declare global variables e.g., the time when the button is pressed 
 int pressed ;
@@ -22,13 +23,12 @@ int pressed ;
 // --------------------------------------------------------------------
 // declare the function definitions, e.g, decoder(...); and ther functions
 // given the user input, you can decode if the input is a character
-void decoder();
+// void decoder();
 
 // check if the button press is a dot or a dash
 void checkButton();
 
-const char morse_code[] =
-
+const char morse_code[][26] =
 {
 ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
 "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
@@ -40,12 +40,14 @@ const char morse_code[] =
 int main() {
 	timer_hw->dbgpause = 0;
 	stdio_init_all();
-
+	//Print Welcome
+	printf("Welcome \n");
 	// Initialise the seven segment display.
 	seven_segment_init();
-
-	// Turn the seven segment display off when the program starts.
+	// Turn the seven segment display on when the program starts.
+	sleep_ms(1000);
 	seven_segment_off();
+}
 
 	// Initialise the button's GPIO pin.
 	gpio_init(BUTTON_PIN);
@@ -63,7 +65,6 @@ int main() {
         // check if the button press is a dot or a dash
 		checkButton();
 	}
-}
 
 void decoder(const char *input){
     for (int i = 0; i < 26; i++) {
@@ -94,7 +95,6 @@ void checkButton() {
 		// The time it was pressed for
 		timePressed = (end_time - start_time) / 1000;
 	}
-
 	if (timePressed < DOT_THRESHOLD) {
 		morse_code[index++] = '.';
 	}	

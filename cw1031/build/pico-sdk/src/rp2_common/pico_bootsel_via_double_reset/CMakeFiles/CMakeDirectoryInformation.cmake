@@ -3,7 +3,7 @@
 
 # Relative path conversion top directories.
 set(CMAKE_RELATIVE_PATH_TOP_SOURCE "/opt/pico-sdk")
-set(CMAKE_RELATIVE_PATH_TOP_BINARY "/user/HS401/cg01237/Downloads/cw1031/build")
+set(CMAKE_RELATIVE_PATH_TOP_BINARY "/user/HS401/mk02523/Course Work/Group-7-CL-Coursework/cw1031/build")
 
 # Force unix paths in dependencies.
 set(CMAKE_FORCE_UNIX_PATHS 1)

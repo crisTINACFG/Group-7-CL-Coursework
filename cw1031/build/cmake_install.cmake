@@ -1,4 +1,4 @@
-# Install script for directory: /user/HS401/cg01237/Downloads/cw1031
+# Install script for directory: /user/HS401/mk02523/Course Work/Group-7-CL-Coursework/cw1031
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/user/HS401/cg01237/Downloads/cw1031/build/pico-sdk/cmake_install.cmake")
+  include("/user/HS401/mk02523/Course Work/Group-7-CL-Coursework/cw1031/build/pico-sdk/cmake_install.cmake")
 
 endif()
 
@@ -51,5 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/user/HS401/cg01237/Downloads/cw1031/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/user/HS401/mk02523/Course Work/Group-7-CL-Coursework/cw1031/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
