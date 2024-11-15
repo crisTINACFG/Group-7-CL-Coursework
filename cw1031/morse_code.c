@@ -38,7 +38,12 @@ int main() {
     seven_segment_init();
     sleep_ms(1000);
     seven_segment_off();
-
+	// if(true) {
+	// 	seven_segment_show(5);
+	// 	sleep_ms(1000);
+	// 	seven_segment_off();
+	// 	sleep_ms(100);
+	// }
     gpio_init(BUTTON_PIN);
     gpio_set_dir(BUTTON_PIN, GPIO_IN);
     gpio_pull_down(BUTTON_PIN);
@@ -104,7 +109,7 @@ void decodeAndDisplay(const char *input) {
     for (int i = 0; i < 26; i++) {
         if (strcmp(input, morse_code[i]) == 0) {
             seven_segment_init();
-            seven_segment_show(values[i]);
+            seven_segment_show(i);
             sleep_ms(500);
             seven_segment_off();
             sleep_ms(500);
