@@ -17,9 +17,10 @@
 #define BUTTON_PIN 16
 
 // declare global variables 
-uint32_t start_time, end_time, timePressed, pause_start, pause_duration;
-char morse_input[4] = "";
+uint32_t start_time1, start_time2, end_time, timePressed, pause_start, pause_duration;
+char morse_input[4];
 int morse_input_index = 0;
+int loop_index = 0;
 
 // Function prototypes
 void checkButton();
@@ -60,30 +61,45 @@ int main() {
     	while (!gpio_get(BUTTON_PIN)) {  // Wait for button to go true (pressed)
     		sleep_ms(20);
     	}
-       	start_time = time_ms();
-		pause_duration = (start_time - pause_start); //calculates time it took to press button
+       	start_time1 = time_ms();
+		
+		if (loop_index > 0) {
+			start_time2 = time_ms();
+			pause_duration = (start_time2 - pause_start);
+			//printf("start time2----------%lu\n", (unsigned long)start_time2);
+		}
 
+		//printf("start time--------%lu\n", (unsigned long)start_time1);
+	
        	while (gpio_get(BUTTON_PIN)) {  // Wait for button to go false (released)
         	sleep_ms(20);
        	}
+		loop_index++;
        	end_time = time_ms();
        	pause_start = time_ms();
 
-       	timePressed = (end_time - start_time);
+       	timePressed = (end_time - start_time1);
+		
+		// printf("end time--------%lu\n", (unsigned long)end_time);
+		// printf("pause start--------%lu\n", (unsigned long)pause_start);
+		// printf("pause_duration--------%lu\n", (unsigned long)pause_duration);
+		// printf("time pressed--------%lu\n", (unsigned long)timePressed);
 
-		if (pause_duration > INTERLETTER && morse_input_index > 0){ //ADD LOGIC FOR: AND IF mourse_input size reached 4!!
+
+
+		if (pause_duration > INTERLETTER  && morse_input_index > 0){ //ADD LOGIC FOR: AND IF mourse_input size reached 4!!
 			decoder(morse_input);
+			printf("%s\n", morse_input);
+			memset(morse_input, 0, 4);//based on https://www.geeksforgeeks.org/memset-c-example/
 
-
-			memset(morse_input, 0, sizeof(morse_input));//based on https://www.geeksforgeeks.org/memset-c-example/
 			//seven_segment_init(); 
 			morse_input_index = 0; 
-		} else if(morse_input_index < sizeof(morse_input) - 1) {
+		} else {	
 			checkButton();
-			//for(int i = 0; i < 4; i++){
-			//	printf("%c", morse_input[i] );
+			for(int i = 0; i < 4; i++){
+				printf("%c", morse_input[i] );
 				
-			//}
+			}
 		}
    }
 }
@@ -103,14 +119,18 @@ void decoder(const char *input){
 void checkButton() {
 	if (timePressed < DOT_THRESHOLD) { 
 		strcat(morse_input, ".");
-		//printf("array", morse_input);  
+		for (int i = 0; i < 4; i++)
+            printf("%c ", morse_input[i]);
+		//printf(".");
+ 
 	} else { 
 		strcat(morse_input, "-");
-		//printf("array", morse_input);  
+		for (int i = 0; i < 4; i++)
+            printf("%c ", morse_input[i]);
 
-		printf("-");
+		//printf("-");
 	}
 	morse_input_index++;
-	printf("%s\n", morse_input);
+	
 }
 
