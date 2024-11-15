@@ -33,32 +33,32 @@ static const unsigned int ALL_SEGMENTS[] = {SEGMENT_A, SEGMENT_B, SEGMENT_C, SEG
 
 // You will need to extend the array to include more letters.
 uint8_t values[] = {
-0b1110111,
-0b0011111,
-0b1001110,
-0b0111101,
-0b1001111,
-0b1000111,
-0b1111011,
-0b0110111,
-0b0000110,
-0b0111100,
-0b0110111,
-0b0001110,
-0b1010100,
-0b0010101,
-0b1111110,
-0b1100111,
-0b1110011,
-0b0000101,
-0b1011011,
-0b0001111,
-0b0111110,
-0b0011100,
-0b0101010,
-0b0110111,
-0b0111011,
-0b1101101
+0b11101110,
+0b00111110,
+0b10011100,
+0b01111010,
+0b10011110,
+0b10001110,
+0b11110110,
+0b01101110,
+0b00001100,
+0b01111000,
+0b01101110,
+0b00011100,
+0b10101000,
+0b00101010,
+0b11111100,
+0b11001110,
+0b11100110,
+0b00001010,
+0b10110110,
+0b00011110,
+0b01111100,
+0b00111000,
+0b01010100,
+0b01101110,
+0b01110110,
+0b11011010
 };
 
 
@@ -78,6 +78,7 @@ void seven_segment_off() {
 }
 
 void seven_segment_show(unsigned int number) {
+    
     for (unsigned int i = 0; i < 8; i++) {
         unsigned int segmentBit = 1 << (7 - i);
         bool illuminateSegment = (segmentBit & values[number]);
@@ -87,4 +88,5 @@ void seven_segment_show(unsigned int number) {
             !illuminateSegment
         );
     }
+
 }

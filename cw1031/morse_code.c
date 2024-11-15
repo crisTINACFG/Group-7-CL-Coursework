@@ -1,10 +1,3 @@
-/**
-* The given template is a guideline for your coursework only.
-* You are free to edit/create any functions and variables.
-* You can add extra C files if required.
-*/
-
-
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdlib.h"
@@ -12,125 +5,117 @@
 #include "hardware/gpio.h"
 #include <time.h>
 
-#define DOT_THRESHOLD 250 //less than 250 = dot, more than 250 = dash
-#define INTERLETTER 400 //more than 400 = new letter, less than 400 = same letter
-#define BUTTON_PIN 16
+#define DOT_THRESHOLD 250      // Less than 250ms = dot, more than 250ms = dash
+#define INTERLETTER 400        // More than 400ms = new letter
+#define BUTTON_PIN 16          // GPIO pin for button
 
-// declare global variables 
-uint32_t start_time1, start_time2, end_time, timePressed, pause_start, pause_duration;
-char morse_input[4];
+// Declare global variables
+uint32_t start_time, end_time, timePressed, pause_start, pause_duration;
+char morse_input[5];           // Store up to 4 symbols + null terminator
 int morse_input_index = 0;
-int loop_index = 0;
 
 // Function prototypes
-void checkButton();
-void decoder(const char *input);
+void processButtonInput();
+void decodeAndDisplay(const char *input);
+void handleNewLetter();
 
-const char morse_code[26][4] =
-{
-".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
-"-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
-"..-", "...-", ".--", "-..-", "-.--", "--.." 
+// Morse code dictionary
+const char morse_code[26][5] = {
+    ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", 
+    "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", 
+    "..-", "...-", ".--", "-..-", "-.--", "--.."
 };
 
 uint32_t time_ms() {
-   return to_ms_since_boot(get_absolute_time());
+    return to_ms_since_boot(get_absolute_time());
 }
 
 int main() {
+    timer_hw->dbgpause = 0;
+    stdio_init_all();
 
-   timer_hw->dbgpause = 0;
-   stdio_init_all();
+    printf("Welcome\n");
+    seven_segment_init();
+    sleep_ms(1000);
+    seven_segment_off();
 
-   //Print Welcome
-   printf("Welcome \n");
-   // Initialise the seven segment display.
-   seven_segment_init();
-   sleep_ms(1000);
-   seven_segment_off();
+    gpio_init(BUTTON_PIN);
+    gpio_set_dir(BUTTON_PIN, GPIO_IN);
+    gpio_pull_down(BUTTON_PIN);
 
-   //Initialise the button's GPIO pin.
-   gpio_init(BUTTON_PIN);
-   gpio_set_dir(BUTTON_PIN, GPIO_IN);
-   gpio_pull_down(BUTTON_PIN); // Pull the button pin towards ground (with an internal pull-down resistor).
-   
-   //| morse_input_index >= 4
+    while (true) {
+        processButtonInput();
+    }
 
-   while (true) {
-
-    	while (!gpio_get(BUTTON_PIN)) {  // Wait for button to go true (pressed)
-    		sleep_ms(20);
-    	}
-       	start_time1 = time_ms();
-		
-		if (loop_index > 0) {
-			start_time2 = time_ms();
-			pause_duration = (start_time2 - pause_start);
-			//printf("start time2----------%lu\n", (unsigned long)start_time2);
-		}
-
-		//printf("start time--------%lu\n", (unsigned long)start_time1);
-	
-       	while (gpio_get(BUTTON_PIN)) {  // Wait for button to go false (released)
-        	sleep_ms(20);
-       	}
-		loop_index++;
-       	end_time = time_ms();
-       	pause_start = time_ms();
-
-       	timePressed = (end_time - start_time1);
-		
-		// printf("end time--------%lu\n", (unsigned long)end_time);
-		// printf("pause start--------%lu\n", (unsigned long)pause_start);
-		// printf("pause_duration--------%lu\n", (unsigned long)pause_duration);
-		// printf("time pressed--------%lu\n", (unsigned long)timePressed);
-
-
-
-		if (pause_duration > INTERLETTER  && morse_input_index > 0){ //ADD LOGIC FOR: AND IF mourse_input size reached 4!!
-			decoder(morse_input);
-			printf("%s\n", morse_input);
-			memset(morse_input, 0, 4);//based on https://www.geeksforgeeks.org/memset-c-example/
-
-			//seven_segment_init(); 
-			morse_input_index = 0; 
-		} else {	
-			checkButton();
-			for(int i = 0; i < 4; i++){
-				printf("%c", morse_input[i] );
-				
-			}
-		}
-   }
+    return 0;
 }
 
+void processButtonInput() {
+    while (!gpio_get(BUTTON_PIN)) {
+        // Button not pressed, check for inter-letter pause
+        if (pause_start > 0) {
+            pause_duration = time_ms() - pause_start;
+            if (pause_duration > INTERLETTER && morse_input_index > 0) {
+                handleNewLetter();
+            }
+        }
+        sleep_ms(20);
+    }
 
-void decoder(const char *input){
-   for (int i = 0; i < 26; i++) {
-   	if (strcmp(input, morse_code[i]) == 0) { //Based on: https://www.geeksforgeeks.org/strcmp-in-c/
-       seven_segment_show(values[i]);
-	  // printf(morse_code[i]);
-       return;
-       }
-   }
-       printf("Error: This morse code is unrecognized.\n");
-   }
+    // Button pressed
+    start_time = time_ms();
+    while (gpio_get(BUTTON_PIN)) {
+        sleep_ms(20);
+    }
 
-void checkButton() {
-	if (timePressed < DOT_THRESHOLD) { 
-		strcat(morse_input, ".");
-		for (int i = 0; i < 4; i++)
-            printf("%c ", morse_input[i]);
-		//printf(".");
- 
-	} else { 
-		strcat(morse_input, "-");
-		for (int i = 0; i < 4; i++)
-            printf("%c ", morse_input[i]);
+    // Button released
+    end_time = time_ms();
+    timePressed = end_time - start_time;
+    pause_start = time_ms(); // Mark pause start
 
-		//printf("-");
-	}
-	morse_input_index++;
-	
+    if (timePressed < DOT_THRESHOLD) {
+        if (morse_input_index < 4) {
+            strcat(morse_input, ".");
+            morse_input_index++;
+        } else {
+            printf("Error: Morse input buffer overflow.\n");
+        }
+    } else {
+        if (morse_input_index < 4) {
+            strcat(morse_input, "-");
+            morse_input_index++;
+        } else {
+            printf("Error: Morse input buffer overflow.\n");
+        }
+    }
+
+    // Debug: Print current Morse input
+    printf("Morse input: %s\n", morse_input);
 }
+
+void handleNewLetter() {
+    // Decode and display the letter
+    decodeAndDisplay(morse_input);
+    memset(morse_input, 0, sizeof(morse_input));
+    morse_input_index = 0;
+}
+
+void decodeAndDisplay(const char *input) {
+    for (int i = 0; i < 26; i++) {
+        if (strcmp(input, morse_code[i]) == 0) {
+            seven_segment_init();
+            seven_segment_show(values[i]);
+            sleep_ms(500);
+            seven_segment_off();
+            sleep_ms(500);
+            printf("Letter detected: %c\n", 'A' + i);
+            
+            return;
+        }
+    }
+
+    printf("Error: Unrecognized Morse code.\n");
+    seven_segment_off(); // Turn off display for errors
+}
+
 
