@@ -15,9 +15,9 @@ char morse_input[5];           // Store up to 4 symbols + null terminator
 int morse_input_index = 0;
 
 // Function prototypes
-void processButtonInput();
-void decodeAndDisplay(const char *input);
-void handleNewLetter();
+void checkButton();
+void decoder(const char *input);
+void Letter();
 
 // Morse code dictionary
 const char morse_code[26][5] = {
@@ -72,19 +72,19 @@ int main() {
     gpio_pull_down(BUTTON_PIN);
 
     while (true) {
-        processButtonInput();
+        checkButton();
     }
 
     return 0;
 }
 
-void processButtonInput() {
+void checkButton() {
     while (!gpio_get(BUTTON_PIN)) {
         // Button not pressed, check for inter-letter pause
         if (pause_start > 0) {
             pause_duration = time_ms() - pause_start;
             if (pause_duration > INTERLETTER && morse_input_index > 0) {
-                handleNewLetter();
+                Letter();
             }
         }
         sleep_ms(20);
@@ -106,14 +106,14 @@ void processButtonInput() {
             strcat(morse_input, ".");
             morse_input_index++;
         } else {
-            printf("Error: Morse input buffer overflow.\n");
+            printf("Error: Input exceeds limits.\n");
         }
     } else {
         if (morse_input_index < 4) {
             strcat(morse_input, "-");
             morse_input_index++;
         } else {
-            printf("Error: Morse input buffer overflow.\n");
+            printf("Error: Input exceeds limits.\n");
         }
     }
 
@@ -121,14 +121,14 @@ void processButtonInput() {
     printf("Morse input: %s\n", morse_input);
 }
 
-void handleNewLetter() {
+void Letter() {
     // Decode and display the letter
-    decodeAndDisplay(morse_input);
+    decoder(morse_input);
     memset(morse_input, 0, sizeof(morse_input));
     morse_input_index = 0;
 }
 
-void decodeAndDisplay(const char *input) {
+void decoder(const char *input) {
     for (int i = 0; i < 26; i++) {
         if (strcmp(input, morse_code[i]) == 0) {
             seven_segment_init();
@@ -142,7 +142,7 @@ void decodeAndDisplay(const char *input) {
         }
     }
 
-    printf("Error: Unrecognized Morse code.\n");
+    printf("Error: This morse code does not exist.\n");
     seven_segment_off(); // Turn off display for errors
 }
 
