@@ -21,7 +21,7 @@
 #define DOWN false
 
 ////////////////////
-
+#define TOO_LONG      700
 #define DOT_THRESHOLD 250      // Less than 250ms = dot, more than 250ms = dash
 #define INTERLETTER 400        // More than 400ms = new letter
 #define BUTTON_PIN 16          // GPIO pin for button
@@ -168,6 +168,7 @@ void checkButton() {
         printf("Error: Input exceeds limits.\n");
         memset(morse_input, 0, sizeof(morse_input));
         morse_input_index = 0;
+        seven_segment_show(27);
         show_rgb(255,0,0);
         errorSong();
         sleep_ms(400);
@@ -178,6 +179,17 @@ void checkButton() {
         if(morse_input_index > 0){
             printf("Morse input: %s\n", morse_input);
         }
+        if(timePressed > TOO_LONG){
+            printf("Error: Button pressed for too long.\n");
+        memset(morse_input, 0, sizeof(morse_input));
+        morse_input_index = 0;
+        seven_segment_show(27);
+        show_rgb(255,0,0);
+        errorSong();
+        sleep_ms(400);
+        show_rgb(0,0,0);
+        }
+        
     }
 
 void Letter() {
@@ -205,7 +217,7 @@ void decoder(const char *input) {
 
     printf("Error: This morse code does not exist.\n");
     show_rgb(255,0,0);
-
+    seven_segment_show(27);
     errorSong();
 
     seven_segment_off(); // Turn off display for errors
