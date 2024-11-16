@@ -19,7 +19,7 @@
 #define G               392
 #define A4              440     // (Next octave)
 #define B4              494
-#define AS4 466
+#define AS 466
 
 
 

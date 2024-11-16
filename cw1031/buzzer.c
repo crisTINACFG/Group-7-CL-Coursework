@@ -23,7 +23,7 @@ void buzzer_enable(unsigned int frequency) {
         pwm_gpio_to_slice_num(BUZZER_PIN),          // PWM Slice (comptued from pin)
         pwm_gpio_to_channel(BUZZER_PIN),            // PWM Channel (computed from pin)
         frequency,                                  // Frequency in Hz (as specified)
-        0.1                                        // Duty cycle = 0.1 (max volume = 0.5)
+        0.06                                        // Duty cycle = 0.1 (max volume = 0.5)
     );
 
     // Mark the slice associated with the BUZZER_PIN enabled.

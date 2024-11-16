@@ -44,14 +44,14 @@ void playNote( int frequency){
     buzzer_enable(frequency);
 }
 void welcome_song() {
-    unsigned int song[] = {G,AS4, A, C};
+    unsigned int song[] = {A4,B4,E3};
     unsigned int songLength = sizeof(song)/sizeof(song[0]);
 
     for (unsigned int i = 0; i < songLength; i++){
         buzzer_enable(song[i]);
-        sleep_ms(1000);
+        sleep_ms(100);
         buzzer_disable();
-        sleep_ms(500);
+        sleep_ms(50);
     }
     buzzer_disable();
 }
@@ -107,8 +107,9 @@ int main() {
     timer_hw->dbgpause = 0;
     stdio_init_all();
     buzzer_init();
-    //buzzer_disable();
+    
     welcome_song();
+    //buzzer_disable();
     setup_rgb();
     show_rgb(0,0,0);
 
