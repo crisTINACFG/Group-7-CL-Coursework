@@ -78,6 +78,7 @@ void seven_segment_off() {
 }
 
 void seven_segment_show(unsigned int number) {
+    
     for (unsigned int i = 0; i < 8; i++) {
         unsigned int segmentBit = 1 << (7 - i);
         bool illuminateSegment = (segmentBit & values[number]);
@@ -87,4 +88,5 @@ void seven_segment_show(unsigned int number) {
             !illuminateSegment
         );
     }
+
 }

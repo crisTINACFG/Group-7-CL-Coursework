@@ -1,98 +1,244 @@
-/**
- * The given template is a guideline for your coursework only.
- * You are free to edit/create any functions and variables.
- * You can add extra C files if required.
-*/
-
-
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdlib.h"
 #include "includes/seven_segment.h"
 #include "hardware/gpio.h"
+#include <time.h>
+#include "hardware/pwm.h"
+#include "includes/buzzer.h"
 
-#define DOT_THRESHOLD 250
-#define INTERLETTER 700
-#define INTERSIGNAL 400
-#define BUTTON_PIN 16
+////////////rgb
+#define R 13 
+#define G 12 
+#define B 11 
 
-// declare global variables e.g., the time when the button is pressed 
+#define BRIGHTNESS 50
+#define LOOP_SLEEP 10
+#define MAX_COLOUR_VALUE 255
+#define MAX_PWM_LEVEL 65535
+
+#define UP true
+#define DOWN false
+
+////////////////////
+
+#define DOT_THRESHOLD 250      // Less than 250ms = dot, more than 250ms = dash
+#define INTERLETTER 400        // More than 400ms = new letter
+#define BUTTON_PIN 16          // GPIO pin for button
+#define DEBOUNCE_DELAY 200  ///to ensure clean button press duration
+// Declare global variables
+uint32_t start_time, end_time, timePressed, pause_start, pause_duration;
+char morse_input[5];           // Store up to 4 symbols + null terminator
+int morse_input_index = 0;
+int frequency = 500;
 
 // Function prototypes
 void checkButton();
 void decoder(const char *input);
+void Letter();
+void welcome_song();
+void setup_rgb();
+void show_rgb();
 
-const char morse_code[26][5] =
-{
-".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
-"-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
-"..-", "...-", ".--", "-..-", "-.--", "--.." 
-};
+void playNote( int frequency){
+    buzzer_enable(frequency);
+}
+void welcome_song() {
+    unsigned int song[] = {A4,B4,E3};
+    unsigned int songLength = sizeof(song)/sizeof(song[0]);
 
-int main() {
-	timer_hw->dbgpause = 0;
-	stdio_init_all();
+    for (unsigned int i = 0; i < songLength; i++){
+        buzzer_enable(song[i]);
+        sleep_ms(100);
+        buzzer_disable();
+        sleep_ms(50);
+    }
+    buzzer_disable();
+}
+void errorSong(){
+    unsigned int song[] = {A4,B4,A4,B4,A4,B4,E3};
+    unsigned int songLength = sizeof(song)/sizeof(song[0]);
 
-	//Print Welcome
-	printf("Welcome \n");
+    for (unsigned int i = 0; i < songLength; i++){
+        buzzer_enable(song[i]);
+        sleep_ms(100);
+        buzzer_disable();
+        sleep_ms(50);
+    }
+    buzzer_disable();
 
-	// Initialise the seven segment display.
-	seven_segment_init();
-	sleep_ms(1000);
-	seven_segment_off();
-
-	//Initialise the button's GPIO pin.
-	gpio_init(BUTTON_PIN);
-	gpio_set_dir(BUTTON_PIN, GPIO_IN);
-	gpio_pull_down(BUTTON_PIN); // Pull the button pin towards ground (with an internal pull-down resistor).
-	
-	while(true){
-		checkButton();
-	}
 }
 
-void decoder(const char *input){
-    for (int i = 0; i < 26; i++) {
-	if (strcmp(input, morse_code[i]) == 0) { //Based on: https://www.geeksforgeeks.org/strcmp-in-c/
-		seven_segment_show(values[i]);
-		return;
-		}
-	}
-	printf("Error: This morse code is unrecognized.\n");
+// Morse code dictionary
+const char morse_code[26][5] = {
+    ".-", //a
+	"-...", //b
+	"-.-.", //c
+	"-..", //d
+	".", //e
+	"..-.", //f
+	"--.", //g
+	"....", //h
+	"..", //i
+	".---", //j
+    "-.-", //k
+	".-..", //l
+	"--", //m
+	"-.", //n
+	"---", //o
+	".--.", //p
+	"--.-", //q
+	".-.", //r
+	"...", //s
+	"-", //t
+    "..-", //u
+	"...-", //v
+	".--", //w
+	"-..-", //x
+	"-.--", //y
+	"--.."//z
+};
+
+uint32_t time_ms() {
+    return to_ms_since_boot(get_absolute_time());
+}
+
+int main() { 
+    timer_hw->dbgpause = 0;
+    stdio_init_all();
+    buzzer_init();
+    
+    welcome_song();
+    //buzzer_disable();
+    setup_rgb();
+    show_rgb(0,0,0);
+
+    printf("Welcome\n");
+    seven_segment_init();
+    sleep_ms(1000);
+    seven_segment_off();
+    gpio_init(BUTTON_PIN);
+    gpio_set_dir(BUTTON_PIN, GPIO_IN);
+    gpio_pull_down(BUTTON_PIN);
+
+    while (true) {
+        checkButton();
+    }
+
+    return 0;
 }
 
 void checkButton() {
-	int index = 0;
-	char morse_input[4] = {0}; // Buffer to store a single Morse character sequence
-    uint32_t start_time, end_time, timePressed;
+    //buzzer_disable();
+    while (!gpio_get(BUTTON_PIN)) {
+        buzzer_disable();
+        // Button not pressed, check for inter-letter pause
+        if (pause_start > 0) {
+            pause_duration = time_ms() - pause_start;
+            if (pause_duration > INTERLETTER && morse_input_index > 0) {
+                Letter();
+            }
+        }
+        sleep_ms(20);
+    }
 
-	while (true) {
-		while (gpio_get(BUTTON_PIN)) {
-			sleep_ms(10);
-		}
-		start_time = time_us_32();
+    // Button pressed
+    start_time = time_ms();
+    while (gpio_get(BUTTON_PIN)) {
+        buzzer_enable(frequency);
+        sleep_ms(20);
+    }
+    //buzzer_disable();
 
-		while (!gpio_get(BUTTON_PIN)) {
-			sleep_ms(10);
-		}
-		end_time = time_us_32();
+    // Button released
+    end_time = time_ms();
+    timePressed = end_time - start_time;
+    pause_start = time_ms(); // Mark pause start
+    //buzzer_disable();
 
-		// The time it was pressed for
-		timePressed = (end_time - start_time) / 1000;
-	}
-	//Check if press is dot or dash
-	if (timePressed < DOT_THRESHOLD) {
-		morse_input[index++]= '.';
-	}	
-	else if (timePressed >= DOT_THRESHOLD && timePressed < INTERLETTER) {
-		morse_input[index++] = '-';
-	}
-	if(timePressed > INTERLETTER) {
-		decoder(morse_input);
-		char morse_input[4] = {0}; //this should be resetting the morse_input string so that you can start another letter!!
-	}
-/* We want a string variable to store the morse code
-if User waits more that 700ms the string decoder is used and then reset*/
+    if (morse_input_index < 4) {
+        if (timePressed < DOT_THRESHOLD) {
+            strcat(morse_input, ".");
+            morse_input_index++;
+        } else {
+            strcat(morse_input, "-");
+            morse_input_index++;
+        }
+    } 
+    else {
+        printf("Error: Input exceeds limits.\n");
+        memset(morse_input, 0, sizeof(morse_input));
+        morse_input_index = 0;
+        show_rgb(255,0,0);
+        errorSong();
+        sleep_ms(400);
+        show_rgb(0,0,0);
+    }
 
+        // Debug: Print current Morse input
+        if(morse_input_index > 0){
+            printf("Morse input: %s\n", morse_input);
+        }
+    }
+
+void Letter() {
+    // Decode and display the letter
+    decoder(morse_input);
+    memset(morse_input, 0, sizeof(morse_input));
+    morse_input_index = 0;
 }
 
+void decoder(const char *input) {
+    for (int i = 0; i < 26; i++) {
+        if (strcmp(input, morse_code[i]) == 0) {
+            seven_segment_init();
+            seven_segment_show(i);
+            show_rgb(0,255,0);
+            sleep_ms(1000);
+            seven_segment_off();
+            show_rgb(0,0,0);
+            //sleep_ms(1000);
+            printf("Letter detected: %c\n", 'A' + i);
+
+            return;
+        }
+    }
+
+    printf("Error: This morse code does not exist.\n");
+    show_rgb(255,0,0);
+
+    errorSong();
+
+    seven_segment_off(); // Turn off display for errors
+    show_rgb(0,0,0);
+}
+
+
+void setup_rgb()
+{
+    // Tell the LED pins that the PWM is in charge of its value.
+    gpio_set_function(R, GPIO_FUNC_PWM);
+    gpio_set_function(G, GPIO_FUNC_PWM);
+    gpio_set_function(B, GPIO_FUNC_PWM);
+
+    // Figure out which slice we just connected to the LED pin, this is done for the other colors below
+    uint slice_num = pwm_gpio_to_slice_num(R);
+    // Get the defaults for the slice configuration. By default, the
+    // counter is allowed to wrap over its maximum range (0 to 2**16-1)
+    pwm_config config = pwm_get_default_config();
+    // Load the configuration into our PWM slice, and set it running.
+    pwm_init(slice_num, &config, true);
+
+    slice_num = pwm_gpio_to_slice_num(G);
+    pwm_init(slice_num, &config, true);
+
+    slice_num = pwm_gpio_to_slice_num(B);
+    pwm_init(slice_num, &config, true);
+}
+
+void show_rgb(int r, int g, int b)
+{
+    pwm_set_gpio_level(R, ~(MAX_PWM_LEVEL * r / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
+    pwm_set_gpio_level(G, ~(MAX_PWM_LEVEL * g / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
+    pwm_set_gpio_level(B, ~(MAX_PWM_LEVEL * b / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
+}
