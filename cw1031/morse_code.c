@@ -7,6 +7,7 @@
 #include "hardware/pwm.h"
 #include "includes/buzzer.h"
 
+
 ////////////rgb
 #define R 13 
 #define G 12 
@@ -26,6 +27,7 @@
 #define INTERLETTER 400        // More than 400ms = new letter
 #define BUTTON_PIN 16          // GPIO pin for button
 #define DEBOUNCE_DELAY 200  ///to ensure clean button press duration
+#define TOO_LONG 700
 // Declare global variables
 uint32_t start_time, end_time, timePressed, pause_start, pause_duration;
 char morse_input[5];           // Store up to 4 symbols + null terminator
@@ -155,6 +157,14 @@ void checkButton() {
     timePressed = end_time - start_time;
     pause_start = time_ms(); // Mark pause start
     //buzzer_disable();
+
+	if (timePressed > TOO_LONG) {
+  printf("This is an error input");
+    seven_segment_show(8);
+    sleep_ms(1000);
+    seven_segment_off();
+}
+
 
     if (morse_input_index < 4) {
         if (timePressed < DOT_THRESHOLD) {
