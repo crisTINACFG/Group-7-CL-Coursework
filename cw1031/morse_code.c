@@ -214,12 +214,15 @@ void decoder(const char *input) {
         }
     }
 
-    printf("Error: This morse code does not exist.\n");
+    printf("Error: This morse code does not exist, this is an error input.\n");
     show_rgb(255,0,0);
 
     errorSong();
+	seven_segment_show(8);
+    sleep_ms(1000);
+    seven_segment_off();
 
-    seven_segment_off(); // Turn off display for errors
+ // Turn off display for errors
     show_rgb(0,0,0);
 }
 
