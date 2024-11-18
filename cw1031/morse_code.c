@@ -32,44 +32,17 @@
 uint32_t start_time, end_time, timePressed, pause_start, pause_duration;
 char morse_input[5];           // Store up to 4 symbols + null terminator
 int morse_input_index = 0;
-int frequency = 500;
+unsigned int frequency = 500;
 
 // Function prototypes
 void checkButton();
 void decoder(const char *input);
-void Letter();
+void displayLetter();
 void welcome_song();
 void setup_rgb();
 void show_rgb();
-
-void playNote( int frequency){
-    buzzer_enable(frequency);
-}
-void welcome_song() {
-    unsigned int song[] = {A4,B4,E3};
-    unsigned int songLength = sizeof(song)/sizeof(song[0]);
-
-    for (unsigned int i = 0; i < songLength; i++){
-        buzzer_enable(song[i]);
-        sleep_ms(100);
-        buzzer_disable();
-        sleep_ms(50);
-    }
-    buzzer_disable();
-}
-void errorSong(){
-    unsigned int song[] = {A4,B4,A4,B4,A4,B4,E3};
-    unsigned int songLength = sizeof(song)/sizeof(song[0]);
-
-    for (unsigned int i = 0; i < songLength; i++){
-        buzzer_enable(song[i]);
-        sleep_ms(100);
-        buzzer_disable();
-        sleep_ms(50);
-    }
-    buzzer_disable();
-
-}
+void errorDisplay();
+void errorSong();
 
 // Morse code dictionary
 const char morse_code[26][5] = {
@@ -109,9 +82,9 @@ int main() {
     timer_hw->dbgpause = 0;
     stdio_init_all();
     buzzer_init();
-    
-    welcome_song();
     //buzzer_disable();
+    welcome_song();
+
     setup_rgb();
     show_rgb(0,0,0);
 
@@ -132,13 +105,13 @@ int main() {
 
 void checkButton() {
     //buzzer_disable();
-    while (!gpio_get(BUTTON_PIN)) {
+    while (!gpio_get(BUTTON_PIN)) { //if button is NOT pressed
         buzzer_disable();
         // Button not pressed, check for inter-letter pause
         if (pause_start > 0) {
             pause_duration = time_ms() - pause_start;
             if (pause_duration > INTERLETTER && morse_input_index > 0) {
-                Letter();
+                displayLetter();
             }
         }
         sleep_ms(20);
@@ -146,52 +119,53 @@ void checkButton() {
 
     // Button pressed
     start_time = time_ms();
-    while (gpio_get(BUTTON_PIN)) {
+    while (gpio_get(BUTTON_PIN)) { //if button IS pressed
         buzzer_enable(frequency);
         sleep_ms(20);
     }
-    //buzzer_disable();
 
     // Button released
+    buzzer_disable();
     end_time = time_ms();
     timePressed = end_time - start_time;
     pause_start = time_ms(); // Mark pause start
-    //buzzer_disable();
 
-	if (timePressed > TOO_LONG) {
-  printf("This is an error input");
-    seven_segment_show(8);
+    if (timePressed < TOO_LONG){ //if not pressed for longer than 700 ms
+        if (morse_input_index < 4) { //if array still has space for more symbols
+            if (timePressed < DOT_THRESHOLD) {
+                strcat(morse_input, ".");
+                morse_input_index++;
+            } else {
+                strcat(morse_input, "-");
+                morse_input_index++;
+            }
+        } 
+        else { //else array is full (max 4 symbols for a morse letter)
+            printf("Error: Input exceeds limits.\n");
+            memset(morse_input, 0, sizeof(morse_input));
+            morse_input_index = 0;
+            errorDisplay();
+        }
+
+            // Debug: Print current Morse input
+            if(morse_input_index > 0){
+                printf("Morse input: %s\n", morse_input);
+            }
+        } else { //pressed button for more than 700 ms
+            printf("Error: Button pressed longer than 700ms\n");
+            errorDisplay();
+        }
+    } //end of checkbutton
+
+void errorDisplay(){
+    seven_segment_init();
+    show_rgb(255,0,0);
+    errorSong();
     sleep_ms(1000);
     seven_segment_off();
+    show_rgb(0,0,0);
 }
-
-
-    if (morse_input_index < 4) {
-        if (timePressed < DOT_THRESHOLD) {
-            strcat(morse_input, ".");
-            morse_input_index++;
-        } else {
-            strcat(morse_input, "-");
-            morse_input_index++;
-        }
-    } 
-    else {
-        printf("Error: Input exceeds limits.\n");
-        memset(morse_input, 0, sizeof(morse_input));
-        morse_input_index = 0;
-        show_rgb(255,0,0);
-        errorSong();
-        sleep_ms(400);
-        show_rgb(0,0,0);
-    }
-
-        // Debug: Print current Morse input
-        if(morse_input_index > 0){
-            printf("Morse input: %s\n", morse_input);
-        }
-    }
-
-void Letter() {
+void displayLetter() {
     // Decode and display the letter
     decoder(morse_input);
     memset(morse_input, 0, sizeof(morse_input));
@@ -215,15 +189,7 @@ void decoder(const char *input) {
     }
 
     printf("Error: This morse code does not exist, this is an error input.\n");
-    show_rgb(255,0,0);
-
-    errorSong();
-	seven_segment_show(8);
-    sleep_ms(1000);
-    seven_segment_off();
-
- // Turn off display for errors
-    show_rgb(0,0,0);
+	errorDisplay();
 }
 
 
@@ -254,4 +220,30 @@ void show_rgb(int r, int g, int b)
     pwm_set_gpio_level(R, ~(MAX_PWM_LEVEL * r / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
     pwm_set_gpio_level(G, ~(MAX_PWM_LEVEL * g / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
     pwm_set_gpio_level(B, ~(MAX_PWM_LEVEL * b / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
+}
+
+void welcome_song() {
+    unsigned int song[] = {A4,B4,A4,B4,A4,B4,E3};
+    unsigned int songLength = sizeof(song)/sizeof(song[0]);
+
+    for (unsigned int i = 0; i < songLength; i++){
+        buzzer_enable(song[i]);
+        sleep_ms(100);
+        buzzer_disable();
+        sleep_ms(50);
+    }
+    buzzer_disable();
+}
+void errorSong(){
+    unsigned int song[] = {A4,B4,A4,B4,A4,B4,E3};
+    unsigned int songLength = sizeof(song)/sizeof(song[0]);
+
+    for (unsigned int i = 0; i < songLength; i++){
+        buzzer_enable(song[i]);
+        sleep_ms(100);
+        buzzer_disable();
+        sleep_ms(50);
+    }
+    buzzer_disable();
+
 }
