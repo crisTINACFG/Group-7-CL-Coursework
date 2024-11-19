@@ -167,25 +167,29 @@ int main() {
 }
 
 void checkButton() {
+    // uint32_t last_activity_time = time_ms();
     while (!gpio_get(BUTTON1_PIN)) {
         buzzer_disable();
+        // uint32_t current_time = time_ms();
+        // uint32_t inactivity_duration = current_time - last_activity_time;
         // Button not pressed, check for inter-letter pause
         if (pause_start > 0) {
             pause_duration = time_ms() - pause_start;
             if (pause_duration > INTERLETTER && morse_input_index > 0) {
                 Letter();
+                // last_activity_time = current_time; // Reset last activity time after processing
             } 
         }  
-        if (pause_duration > limit){
-            printf("What are you waiting for? ;)");
-            break;
-        }
+        // if (pause_duration > limit) {
+        // printf("You're taking too long! ;)\n");
+        // show_rgb(255, 255, 0);
+        // sleep_ms(1000);
+        // show_rgb(0, 0, 0);
+        // last_activity_time = current_time; // Reset last activity time after warning
+        // }
         sleep_ms(20);
-        
-
     }
     sleep_ms(200);
-    
     // Button pressed
     start_time = time_ms();
     while (gpio_get(BUTTON1_PIN)) {
@@ -233,10 +237,11 @@ void checkButton() {
         show_rgb(0,0,0);
         }
         letter_duration = letter_end - letter_start;
-        printf("%d", letter_duration, "\n");
-         printf("%d",letter_end, "\n");
-          printf("%d", letter_start, "\n"); 
+        // printf("%d", letter_duration, "\n");
+        //  printf("%d",letter_end, "\n");
+        //   printf("%d", letter_start, "\n"); 
     }
+    
 
 void Letter() {
     // Decode and display the letter
