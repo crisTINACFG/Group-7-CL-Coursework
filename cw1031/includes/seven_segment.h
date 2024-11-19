@@ -31,6 +31,19 @@ static const unsigned int ALL_SEGMENTS[] = {SEGMENT_A, SEGMENT_B, SEGMENT_C, SEG
 
 #define ALL_SEGMENTS_COUNT  7
 
+uint8_t numberValues[] = {
+    0b11111100, 
+    0b01100000,
+    0b11011010,
+    0b11110010,
+    0b01100110,
+    0b10110110,
+    0b10111110,
+    0b11100000,
+    0b11111110,
+    0b11110110,
+};
+
 // You will need to extend the array to include more letters.
 uint8_t values[] = {
 0b11101110,
@@ -58,8 +71,7 @@ uint8_t values[] = {
 0b01010100,
 0b01101110,
 0b01110110,
-0b11011010,
-0b11111110
+0b11011010
 };
 
 
@@ -77,9 +89,12 @@ void seven_segment_off() {
         gpio_put(ALL_SEGMENTS[i], true);
     }
 }
-
+void seven_segment_on() {
+    for (unsigned int i = 0; i < ALL_SEGMENTS_COUNT; i++) {
+        gpio_put(ALL_SEGMENTS[i], false);
+    }
+}
 void seven_segment_show(unsigned int number) {
-    
     for (unsigned int i = 0; i < 8; i++) {
         unsigned int segmentBit = 1 << (7 - i);
         bool illuminateSegment = (segmentBit & values[number]);
@@ -89,5 +104,20 @@ void seven_segment_show(unsigned int number) {
             !illuminateSegment
         );
     }
+
+}
+
+unsigned int seven_segment_show_numbers(unsigned int numbers) {
+    if (numbers > 9) return 1;
+
+    for (unsigned int i = 0; i < 8; i++) {
+        unsigned int segmentBit = 1 << (7 - i);
+        bool illuminateSegment = (segmentBit & numberValues[numbers]) != 0;
+        gpio_put(
+            ALL_SEGMENTS[i],
+            !illuminateSegment
+        );
+    }
+    return 0;
 
 }
