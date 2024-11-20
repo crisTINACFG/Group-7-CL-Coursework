@@ -47,7 +47,7 @@ int main();
 
 // Morse code dictionary
 // References
-// print
+// printing Based: https://www.geeksforgeeks.org/printf-in-c/
 //
 const char morse_code[26][5] = {
     ".-",   // a
@@ -79,7 +79,7 @@ const char morse_code[26][5] = {
 };
 
 // Utility Functions
-//  TIME REF
+// Based: https://stackoverflow.com/questions/48833976/failing-to-understand-what-the-expression-uint32-t-does#:~:text=uint32_t%20is%20for%20unsigned%2032,2%2C%202020%20at%203%3A13
 uint32_t time_ms()
 {
     return to_ms_since_boot(get_absolute_time());
@@ -181,7 +181,7 @@ void holdLetters(char letter)
             { // if left button pressed
                 memset(morse_input, 0, sizeof(morse_input));
                 letter_count = 0;
-                printf("Starting over!\n\n");
+                printf("Starting over!\n");
                 sleep_ms(200);
                 show_rgb(0, 255, 0);
                 sleep_ms(1000);
@@ -213,7 +213,7 @@ void decoder(const char *input)
             sleep_ms(1000);
             seven_segment_off();
             show_rgb(0, 0, 0);
-            // A AND I REF
+            // Based: https://www.geeksforgeeks.org/c-ascii-value/
             char decoded_letter = 'A' + i;
             printf("Letter: %c\n", decoded_letter);
             holdLetters(decoded_letter);
