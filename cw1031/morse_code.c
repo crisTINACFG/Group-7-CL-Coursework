@@ -39,6 +39,7 @@ char decoded_letters[69];
 unsigned int limit = 4000;
 bool time_expired = false;
 bool letter_time_started = false;
+bool continue_morse = false;
 void Letter();
 
 //Morse code dictionary
@@ -77,11 +78,11 @@ uint32_t time_ms() {
 }
 
 void potentiometerSettings() {
-    printf("Please set a time limit:\n(1) Press left button to set limit on potentiometer\n(2) Press right button to keep default\n");
+    printf("(1) Press left button to set time limit on potentiometer\n(2) Press right button to keep default\n");
     
      while(true){
         if(gpio_get(BUTTON1_PIN) && !gpio_get(BUTTON2_PIN)){//if button1 (left) IS and button2 (right) is NOT pressed
-            printf("\nSet your potentiometer now, then press left button to confirm:\n");
+            printf("\nSet your potentiometer now, then press left button to confirm\n Time Limit:");
             sleep_ms(200);
             while(!gpio_get(BUTTON1_PIN)){
                 unsigned int value = potentiometer_read(4);
@@ -89,7 +90,7 @@ void potentiometerSettings() {
                 limit = value *1000;
                 sleep_ms(20);
             }
-            printf("You set time limit is now set to: %d seconds\n", limit/1000);
+            printf(" %d seconds\n", limit/1000);
             sleep_ms(200);
             letter_time_start = time_ms();
             break;
@@ -221,7 +222,6 @@ void Letter() {
 
 }
 
-
 void errorDisplay(){
     memset(morse_input, 0, sizeof(morse_input));
     morse_input_index = 0;
@@ -266,28 +266,26 @@ void holdLetters(char letter){
     if (letter_count < 4){
         decoded_letters[letter_count++] = letter;
         decoded_letters[letter_count] = '\0';
-        //printf("decoded letters: %s\n" , decoded_letters);
     } 
-    if(letter_count == 4){
+    if (letter_count == 4) {
         //make a song here
         printf("decoded message: %s\n" , decoded_letters);
-        correctSong();
         printf("Would you like to continue?\n"); 
         printf("Click left to continue, otherwise click right to end: \n");
         
         while(1){
-            if(gpio_get(BUTTON1_PIN) && !gpio_get(BUTTON2_PIN)) { //if left button pressed 
+            if (gpio_get(BUTTON1_PIN) && !gpio_get(BUTTON2_PIN)) { //if left button pressed 
                 memset(morse_input, 0, sizeof(morse_input));
                 letter_count = 0;
-                morse_input_index = 0;
-                printf("starting over...\n");
+                printf("starting over...\n\n");
                 sleep_ms(200);
                 show_rgb(0,255,0);
                 sleep_ms(1000);
                 show_rgb(0,0,0);
-                main();
+                continue_morse = true;
+                return;
                 
-            }  else if(!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN)) { //if right button pressed 
+            }  else if (!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN)) { //if right button pressed 
                 printf("Leave me then...");
                 show_rgb(255,0,0);
                 sleep_ms(1000);
@@ -299,7 +297,7 @@ void holdLetters(char letter){
 }
         
 void welcome_song() {
-    unsigned int song[] = {G, A, C};
+    unsigned int song[] = {G,AS, A, C};
     unsigned int songLength = sizeof(song)/sizeof(song[0]);
 
     for (unsigned int i = 0; i < songLength; i++){
@@ -323,18 +321,6 @@ void errorSong(){
     buzzer_quiet();
 
 } 
- void correctSong (){
-    unsigned int song[] = {Db, F5, Eb, Gb};
-    unsigned int songLength = sizeof(song)/sizeof(song[0]);
-
-    for (unsigned int i = 0; i < songLength; i++){
-        buzzer_enable(song[i]);
-        sleep_ms(100);
-        buzzer_quiet();
-        sleep_ms(50);
-    }
-    buzzer_quiet();
- }
 
 int main() { 
     timer_hw->dbgpause = 0;
@@ -348,17 +334,16 @@ int main() {
     gpio_set_dir(BUTTON1_PIN, GPIO_IN);
     gpio_pull_down(BUTTON1_PIN);
 
-        printf("Welcome\n");
-        seven_segment_init();
-        sleep_ms(1000);
-        seven_segment_off();
+    printf("Welcome!\n");
+    seven_segment_init();
+    sleep_ms(1000);
+    seven_segment_off();
 
-        potentiometerSettings();
+    potentiometerSettings();
 
-        while (true) {
-            checkButton();
-        }
-        
+    while (true) {
+        checkButton();
+    }
 
     return 0;
 }
