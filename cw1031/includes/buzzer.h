@@ -5,33 +5,24 @@
 
 // --------------------------------------------------------------------
 
-#define BUZZER_PIN      17      // Pin 22 (GPIO 17)
-
+#define BUZZER_PIN      17      
 #define E3              165
 #define F3              175
-#define G3              196     // (Previous octave)
-#define A               220     // A3
-#define B               247     // B3
-#define C               262     // C4 (middle C)
+#define G3              196     
+#define A               220     
+#define B               247     
+#define C               262     
 #define D               294
 #define E               330
 #define F               349
 #define G               392
-#define A4              440     // (Next octave)
+#define A4              440     
 #define B4              494
-#define C4              261.63
-#define D4              293.66
-#define E4              329.63
-#define F4              349.23
-#define G4              392.00
-#define A4              440.00
-#define B4              493.88
-#define C5              523.25
-#define Db             554.36  // High Db (Db5)
-#define F5              698.46   // High F (F5)
-#define Eb             622.25  // High Eb (Eb5)
-#define Gb            740.00
-
+#define AS4             466
+#define NOTE_A4         440  
+#define NOTE_C5         523   
+#define NOTE_E5         659   
+#define NOTE_A5         880   
 
 
 // --------------------------------------------------------------------

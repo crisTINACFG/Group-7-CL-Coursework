@@ -124,6 +124,9 @@ void potentiometerSettings()
             printf(" %d seconds\n", limit / 1000);
             sleep_ms(200);
             letter_time_start = time_ms();
+            seven_segment_init();
+            sleep_ms(500);
+            seven_segment_off();
             break;
         }
         else if (!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN))
@@ -139,6 +142,21 @@ void potentiometerSettings()
     }
 }
 
+void correctSong()
+{
+    unsigned int song[] = {NOTE_A4, NOTE_C5, NOTE_E5, NOTE_A5, NOTE_C5, NOTE_A4};
+    unsigned int songLength = sizeof(song) / sizeof(song[0]);
+
+    for (unsigned int i = 0; i < songLength; i++)
+    {
+        buzzer_enable(song[i]);
+        sleep_ms(100);
+        buzzer_quiet();
+        sleep_ms(50);
+    }
+    buzzer_quiet();
+}
+
 void holdLetters(char letter)
 {
     if (letter_count < 4)
@@ -149,7 +167,9 @@ void holdLetters(char letter)
     if (letter_count == 4)
     {
         // make a song here
+        
         printf("Your message: %s\n\n", decoded_letters);
+        correctSong();
         sleep_ms(200);
         printf("Would you like to continue?\n");
         printf("(Yes) Left\n");
@@ -346,24 +366,10 @@ void setup_rgb()
 }
 
 
-void welcome_song()
-{
-    unsigned int song[] = {G, A, C};
-    unsigned int songLength = sizeof(song) / sizeof(song[0]);
-
-    for (unsigned int i = 0; i < songLength; i++)
-    {
-        buzzer_enable(song[i]);
-        sleep_ms(200);
-        buzzer_quiet();
-        sleep_ms(500);
-    }
-    buzzer_quiet();
-}
 
 void errorSong()
 {
-    unsigned int song[] = {A4, B4, A4, B4, A4, B4, E3};
+    unsigned int song[] = {A4,B4,A4,B4,A4,B4,E3};
     unsigned int songLength = sizeof(song) / sizeof(song[0]);
 
     for (unsigned int i = 0; i < songLength; i++)
