@@ -279,11 +279,12 @@ void holdLetters(char letter){
             if(gpio_get(BUTTON1_PIN) && !gpio_get(BUTTON2_PIN)) { //if left button pressed 
                 memset(morse_input, 0, sizeof(morse_input));
                 letter_count = 0;
-                printf("starting over\n");
+                printf("starting over...\n");
+                sleep_ms(200);
                 show_rgb(0,255,0);
                 sleep_ms(1000);
                 show_rgb(0,0,0);
-                break;
+                goto restart;
                 
             }  else if(!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN)) { //if right button pressed 
                 printf("Leave me then...");
@@ -333,6 +334,8 @@ int main() {
     gpio_init(BUTTON1_PIN);
     gpio_set_dir(BUTTON1_PIN, GPIO_IN);
     gpio_pull_down(BUTTON1_PIN);
+
+restart:
 
     printf("Welcome\n");
     seven_segment_init();
