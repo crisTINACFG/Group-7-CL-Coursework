@@ -17,6 +17,29 @@ void buzzer_disable() {
     pwm_set_enabled(pwm_gpio_to_slice_num(BUZZER_PIN), false);
 }
 
+void buzzer_quiet() {
+
+    // Set the frequency and duty cycle for the specified pin to the specified frequency.
+
+    pwm_set_freq_duty(
+
+    pwm_gpio_to_slice_num(BUZZER_PIN), // PWM Slice (comptued from pin)
+
+    pwm_gpio_to_channel(BUZZER_PIN), // PWM Channel (computed from pin)
+
+    0, // Frequency in Hz (as specified)
+
+    0 // Duty cycle = 0.1 (max volume = 0.5)
+
+    );
+
+
+    // Mark the slice associated with the BUZZER_PIN enabled.
+
+    pwm_set_enabled(pwm_gpio_to_slice_num(BUZZER_PIN), true);
+
+}
+
 void buzzer_enable(unsigned int frequency) {
     // Set the frequency and duty cycle for the specified pin to the specified frequency.
     pwm_set_freq_duty(

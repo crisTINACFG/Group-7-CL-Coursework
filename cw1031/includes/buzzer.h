@@ -64,3 +64,5 @@ void buzzer_disable();
  * Enable the buzzer at the specified frequency.
  */
 void buzzer_enable(unsigned int frequency);
+
+void buzzer_quiet();

@@ -118,7 +118,7 @@ void potentiometerSettings() {
 
 void checkButton() {
     while (!gpio_get(BUTTON1_PIN)) {
-        buzzer_disable();
+        buzzer_quiet();
         // Button not pressed, check for inter-letter pause
         if (pause_start > 0) {
             pause_duration = time_ms() - pause_start;
@@ -292,11 +292,11 @@ void welcome_song() {
 
     for (unsigned int i = 0; i < songLength; i++){
         buzzer_enable(song[i]);
-        sleep_ms(1000);
-        buzzer_disable();
+        sleep_ms(200);  
+        buzzer_quiet();
         sleep_ms(500);
     }
-    buzzer_disable();
+    buzzer_quiet();
 }
 void errorSong(){
     unsigned int song[] = {A4,B4,A4,B4,A4,B4,E3};
@@ -305,10 +305,10 @@ void errorSong(){
     for (unsigned int i = 0; i < songLength; i++){
         buzzer_enable(song[i]);
         sleep_ms(100);
-        buzzer_disable();
+        buzzer_quiet();
         sleep_ms(50);
     }
-    buzzer_disable();
+    buzzer_quiet();
 
 } 
 
