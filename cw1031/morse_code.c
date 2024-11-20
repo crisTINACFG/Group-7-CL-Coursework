@@ -39,6 +39,7 @@ char decoded_letters[69];
 unsigned int limit = 4000;
 bool time_expired = false;
 bool letter_time_started = false;
+void Letter();
 
 //Morse code dictionary
 const char morse_code[26][5] = {
@@ -90,7 +91,7 @@ void potentiometerSettings() {
             }
             printf("You set time limit is now set to: %d seconds\n", limit/1000);
             sleep_ms(200);
-            letter_start = time_ms();
+            letter_time_start = time_ms();
             break;
         } else if(!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN)){//if button1 (left) is NOT and button2 (right) IS pressed
             printf("Default limit: %d seconds \n",limit/1000);
@@ -181,6 +182,31 @@ void checkButton() {
 
 }
 
+void decoder(const char *input) {
+    for (int i = 0; i < 26; i++) {
+        if (strcmp(input, morse_code[i]) == 0) {
+            seven_segment_init();
+            seven_segment_show(i);
+            show_rgb(0,255,0);
+            sleep_ms(1000);
+            seven_segment_off();
+            show_rgb(0,0,0);
+            char decoded_letter = 'A' + i;
+            printf("letter: %c\n", decoded_letter);
+            holdLetters(decoded_letter);
+            return;
+        }
+    }
+
+    printf("Error: This morse code does not exist.\n");
+    show_rgb(255,0,0);
+    seven_segment_show(27);
+    errorSong();
+
+    seven_segment_off(); // Turn off display for errors
+    show_rgb(0,0,0);
+}
+
 void Letter() {
     // Decode and display the letter
      if (morse_input_index > 0) {  // Ensure there's input to decode
@@ -195,29 +221,6 @@ void Letter() {
 
 }
 
-void decoder(const char *input) {
-    for (int i = 0; i < 26; i++) {
-        if (strcmp(input, morse_code[i]) == 0) {
-            seven_segment_init();
-            seven_segment_show(i);
-            show_rgb(0,255,0);
-            sleep_ms(1000);
-            seven_segment_off();
-            show_rgb(0,0,0);
-            char decoded_letter = 'A' + i;
-            holdLetters(decoded_letter);
-            return;
-        }
-    }
-
-    printf("Error: This morse code does not exist.\n");
-    show_rgb(255,0,0);
-    seven_segment_show(27);
-    errorSong();
-
-    seven_segment_off(); // Turn off display for errors
-    show_rgb(0,0,0);
-}
 
 void errorDisplay(){
     memset(morse_input, 0, sizeof(morse_input));
@@ -294,7 +297,7 @@ void holdLetters(char letter){
 }
         
 void welcome_song() {
-    unsigned int song[] = {G,AS4, A, C};
+    unsigned int song[] = {G,AS, A, C};
     unsigned int songLength = sizeof(song)/sizeof(song[0]);
 
     for (unsigned int i = 0; i < songLength; i++){
