@@ -271,7 +271,7 @@ void holdLetters(char letter){
     if(letter_count == 4){
         //make a song here
         printf("decoded message: %s\n" , decoded_letters);
-
+        correctSong();
         printf("Would you like to continue?\n"); 
         printf("Click left to continue, otherwise click right to end: \n");
         
@@ -279,12 +279,13 @@ void holdLetters(char letter){
             if(gpio_get(BUTTON1_PIN) && !gpio_get(BUTTON2_PIN)) { //if left button pressed 
                 memset(morse_input, 0, sizeof(morse_input));
                 letter_count = 0;
+                morse_input_index = 0;
                 printf("starting over...\n");
                 sleep_ms(200);
                 show_rgb(0,255,0);
                 sleep_ms(1000);
                 show_rgb(0,0,0);
-                goto restart;
+                main();
                 
             }  else if(!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN)) { //if right button pressed 
                 printf("Leave me then...");
@@ -298,7 +299,7 @@ void holdLetters(char letter){
 }
         
 void welcome_song() {
-    unsigned int song[] = {G,AS, A, C};
+    unsigned int song[] = {G, A, C};
     unsigned int songLength = sizeof(song)/sizeof(song[0]);
 
     for (unsigned int i = 0; i < songLength; i++){
@@ -322,6 +323,18 @@ void errorSong(){
     buzzer_quiet();
 
 } 
+ void correctSong (){
+    unsigned int song[] = {Db, F5, Eb, Gb};
+    unsigned int songLength = sizeof(song)/sizeof(song[0]);
+
+    for (unsigned int i = 0; i < songLength; i++){
+        buzzer_enable(song[i]);
+        sleep_ms(100);
+        buzzer_quiet();
+        sleep_ms(50);
+    }
+    buzzer_quiet();
+ }
 
 int main() { 
     timer_hw->dbgpause = 0;
@@ -335,18 +348,17 @@ int main() {
     gpio_set_dir(BUTTON1_PIN, GPIO_IN);
     gpio_pull_down(BUTTON1_PIN);
 
-restart:
+        printf("Welcome\n");
+        seven_segment_init();
+        sleep_ms(1000);
+        seven_segment_off();
 
-    printf("Welcome\n");
-    seven_segment_init();
-    sleep_ms(1000);
-    seven_segment_off();
+        potentiometerSettings();
 
-    potentiometerSettings();
-
-    while (true) {
-        checkButton();
-    }
+        while (true) {
+            checkButton();
+        }
+        
 
     return 0;
 }
