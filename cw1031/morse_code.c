@@ -145,14 +145,10 @@ void checkButton() {
     while (gpio_get(BUTTON1_PIN)) { //while button is pressed
         buzzer_enable(frequency);
         sleep_ms(20);
-        checkLetterTime(); //not sure about this placement
-        if (time_expired == true) {
-            return;
-        }
-        sleep_ms(20);
     }
 
     //button released
+    //buzzer_quiet();      add this in if there issues
     checkLetterTime();
     if (time_expired == true) {
         return;
