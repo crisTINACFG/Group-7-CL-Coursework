@@ -77,8 +77,11 @@ uint32_t time_ms() {
 
 //Timer callback
 bool letter_timer_callback(repeating_timer_t *rt) {
-    time_expired = true; // Set the flag when timer expires
-    return false;        // Don't repeat the timer
+    if (!time_expired) {  // If not already handled by inter-letter logic
+        Letter();         // Force decode
+    }
+    time_expired = true;
+    return false;
 }
 
 //Start timer for letter timeout
@@ -86,6 +89,11 @@ void start_letter_timer(uint32_t duration_ms) {
     static repeating_timer_t timer;
     time_expired = false; // Reset the flag
     add_repeating_timer_ms(-duration_ms, letter_timer_callback, NULL, &timer);
+}
+
+void stop_letter_timer() {
+    static repeating_timer_t timer;
+    cancel_repeating_timer(&timer);  // Stop the timer if it's running
 }
 
 void potentiometerSettings() {
@@ -184,12 +192,16 @@ void checkButton() {
 
 void Letter() {
     // Decode and display the letter
-    cancel_repeating_timer(&timer);
-    decoder(morse_input);
+     if (morse_input_index > 0) {  // Ensure there's input to decode
+        decoder(morse_input);    // Decode and display the input
+    }
 
+    // Reset for the next letter
     memset(morse_input, 0, sizeof(morse_input));
     morse_input_index = 0;
     pause_start = 0;
+
+    stop_letter_timer();
 }
 
 void decoder(const char *input) {
