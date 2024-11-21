@@ -198,12 +198,14 @@ void holdLetters(char letter) //this method is to hold the decoded letters of th
                 memset(morse_input, 0, sizeof(morse_input));
                 letter_count = 0;
                 time_expired = false;
+                pause_start = 0;
                 printf("Starting over!\n");
                 sleep_ms(200);
                 show_rgb(0, 255, 0);
                 sleep_ms(1000);
                 show_rgb(0, 0, 0);
                 morse_input_index = 0;
+                letter_time_started = false;
                 main();
             }
             else if (!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN))//is the right button is pressed the program is terminated
@@ -348,6 +350,8 @@ void checkButton()
             printf("Error: Button pressed for too long.\n");
             errorDisplay();
             letter_time_started = false;
+            pause_start = 0;
+            time_expired = false;
         }
         else if (timePressed < DOT_THRESHOLD)
         {
@@ -365,6 +369,8 @@ void checkButton()
         printf("Error: Input exceeds limits.\n");
         errorDisplay();
          letter_time_started = false;
+         pause_start = 0;
+         time_expired = false;
     }
 
     // Debug: Print current Morse input
@@ -445,6 +451,7 @@ int main()
     
 
     potentiometerSettings();
+    letter_time_start = false;
 
     while (true)
     {
