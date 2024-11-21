@@ -31,7 +31,7 @@
 
 // Declare global variables
 uint32_t start_time, end_time, timePressed, pause_start, pause_duration, letter_time_start;
-char morse_input[5]; // Store up to 4 symbols + null terminator //array of morse input
+char morse_input[69]; // Store up to 4 symbols + null terminator //array of morse input
 int morse_input_index = 0; //index each dot and dash stored
 int frequency = 500;
 int letter_count = 0;
@@ -39,7 +39,6 @@ char decoded_letters[5];//array of letters decoded
 unsigned int limit = 4000;
 bool time_expired = false;
 bool letter_time_started = false;
-bool continue_morse = false;
 
 
 ///////////declarations of functions
@@ -138,6 +137,7 @@ void potentiometerSettings() //this function is to allow the user to set a time 
         }
         else if (!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN))
         { // if button1 (left) is NOT and button2 (right) IS pressed
+            limit = 4000;
             printf("Default limit: %d seconds \n", limit / 1000);
             break;//Based on: https://www.geeksforgeeks.org/c-break-statement/
         }
@@ -197,6 +197,7 @@ void holdLetters(char letter) //this method is to hold the decoded letters of th
             //every component is resetted including the array of letters and morse code
                 memset(morse_input, 0, sizeof(morse_input));
                 letter_count = 0;
+                time_expired = false;
                 printf("Starting over!\n");
                 sleep_ms(200);
                 show_rgb(0, 255, 0);
@@ -271,10 +272,19 @@ void checkLetterTime() // to check if its over the limit yet
 { 
     if ((time_ms() - letter_time_start) > limit)
     { // if longer than limit
-        printf("Time limit expired");
-        errorDisplay();
+        printf("Time limit expired\n");
+        seven_segment_init();
+        show_rgb(255, 0, 0);
+        errorSong();
+        sleep_ms(500);
+        seven_segment_off();
+        show_rgb(0, 0, 0);
+        sleep_ms(200);
         Letter();
+        memset(morse_input, 0, sizeof(morse_input)); 
+        morse_input_index = 0;
         time_expired = true;
+        letter_time_started = false;
         return;
     }
     else
@@ -327,13 +337,6 @@ void checkButton()
         sleep_ms(20);
     }
 
-
-
-    checkLetterTime();
-    if (time_expired == true)
-    {
-        return;
-    }
     end_time = time_ms();
     timePressed = end_time - start_time;
     pause_start = time_ms(); // pause starts
@@ -344,6 +347,7 @@ void checkButton()
         { // if the buttton was pressed for too long
             printf("Error: Button pressed for too long.\n");
             errorDisplay();
+            letter_time_started = false;
         }
         else if (timePressed < DOT_THRESHOLD)
         {
@@ -360,6 +364,7 @@ void checkButton()
     {
         printf("Error: Input exceeds limits.\n");
         errorDisplay();
+         letter_time_started = false;
     }
 
     // Debug: Print current Morse input
@@ -367,6 +372,13 @@ void checkButton()
     {
         printf("Morse input: %s\n", morse_input);
     }
+    if (letter_time_started = true){
+        checkLetterTime();
+    if (time_expired == true)
+    {
+        return;
+    }}
+
 }
 
 ///////////////////////////////////////////////////////////////
@@ -425,7 +437,7 @@ int main()
     gpio_set_dir(BUTTON1_PIN, GPIO_IN);
     gpio_pull_down(BUTTON1_PIN);
     printf("----------------------------------------------------------\n");
-    
+
     printf("Welcome!\n");
     seven_segment_init();
     sleep_ms(1000);
