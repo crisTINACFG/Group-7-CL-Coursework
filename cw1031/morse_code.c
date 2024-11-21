@@ -131,7 +131,8 @@ void potentiometerSettings()
         }
         else if (!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN))
         { // if button1 (left) is NOT and button2 (right) IS pressed
-            printf("Default limit: %d seconds \n", limit / 1000);
+            int limit2 = 4000;
+            printf("Default limit: %d seconds \n", limit2 / 1000);
             break;
         }
         else if (gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN))
@@ -248,7 +249,8 @@ void Letter()
 void checkLetterTime()
 { // checking if its over the limit yet
     if (time_ms() - letter_time_start > limit)
-    { // if longer than limit
+    {   printf("Time limit expired\n");
+        errorDisplay();
         Letter();
         time_expired = true;
         return;
