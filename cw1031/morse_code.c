@@ -271,7 +271,9 @@ void Letter()
 ///////////////////////////////////////////////////////////////
 
 void checkLetterTime() // to check if its over the limit yet
-{ 
+{   if(time_expired || morse_input_index == 0){
+        return; //Skip if time_expired or no input yet
+    }   
     if ((time_ms() - letter_time_start) > limit)
     { // if longer than limit
         printf("Time limit expired\n");
