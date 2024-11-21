@@ -48,7 +48,6 @@ int main();
 // Morse code dictionary
 // References
 // printing Based: https://www.geeksforgeeks.org/printf-in-c/
-//
 const char morse_code[26][5] = {
     ".-",   // a
     "-...", // b
@@ -171,6 +170,10 @@ void holdLetters(char letter)
         
         printf("Your message: %s\n\n", decoded_letters);
         correctSong();
+        sleep_ms(200);
+        show_rgb(0, 255, 0);
+        sleep_ms(500);
+        show_rgb(0, 0, 0);
         sleep_ms(200);
         printf("Would you like to continue?\n");
         printf("(Yes) Left\n");
@@ -304,7 +307,7 @@ void checkButton()
     }
 
     // button released
-    // buzzer_quiet();      add this in if there issues
+    // buzzer_quiet(); add this in if there issues
     checkLetterTime();
     if (time_expired == true)
     {
