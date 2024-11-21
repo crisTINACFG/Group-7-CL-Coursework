@@ -223,9 +223,9 @@ void decoder(const char *input)
 
     printf("Error: This morse code does not exist.\n");
     show_rgb(255, 0, 0);
-    seven_segment_show(27);
+    seven_segment_init();
     errorSong();
-
+    sleep_ms(500);
     seven_segment_off(); // Turn off display for errors
     show_rgb(0, 0, 0);
 }
