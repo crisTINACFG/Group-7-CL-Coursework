@@ -22,7 +22,7 @@
 #define DOWN false
 
 ////////////////////
-#define TOO_LONG 700
+#define TOO_LONG 700 //if button is pressed more than 700ms display error message
 #define DOT_THRESHOLD 250 // Less than 250ms = dot, more than 250ms = dash
 #define INTERLETTER 400   // More than 400ms = new letter
 #define BUTTON2_PIN 16    // RIGHT
@@ -31,15 +31,18 @@
 
 // Declare global variables
 uint32_t start_time, end_time, timePressed, pause_start, pause_duration, letter_time_start;
-char morse_input[5]; // Store up to 4 symbols + null terminator
+char morse_input[5]; // Store up to 4 symbols + null terminator //array of morse input
 int morse_input_index = 0;
 int frequency = 500;
 int letter_count = 0;
-char decoded_letters[69];
+char decoded_letters[5];//array of letters decoded
 unsigned int limit = 4000;
 bool time_expired = false;
 bool letter_time_started = false;
 bool continue_morse = false;
+
+
+///////////declarations of functions
 void errorSong();
 void potentiometer_init();
 unsigned int potentiometer_read();
@@ -85,16 +88,16 @@ uint32_t time_ms()
     return to_ms_since_boot(get_absolute_time());
 }
 
-void show_rgb(int r, int g, int b)
+void show_rgb(int r, int g, int b)//Based on: Lab 8 worksheet
 {
     pwm_set_gpio_level(R, ~(MAX_PWM_LEVEL * r / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
     pwm_set_gpio_level(G, ~(MAX_PWM_LEVEL * g / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
     pwm_set_gpio_level(B, ~(MAX_PWM_LEVEL * b / MAX_COLOUR_VALUE * BRIGHTNESS / 100));
 }
 
-void errorDisplay()
+void errorDisplay() //this function is called when an error occurs due to user fault eg. button pressed too long
 {
-    memset(morse_input, 0, sizeof(morse_input));
+    memset(morse_input, 0, sizeof(morse_input)); //Based on: https://www.geeksforgeeks.org/memset-c-example/
     morse_input_index = 0;
     seven_segment_init();
     show_rgb(255, 0, 0);
@@ -104,7 +107,7 @@ void errorDisplay()
     show_rgb(0, 0, 0);
 }
 
-void potentiometerSettings()
+void potentiometerSettings() //this function is to allow user to set a time limit
 {
     printf("(Left) Set your own time limit!\n(Right) Keep default time limit!\n");
 
@@ -122,6 +125,7 @@ void potentiometerSettings()
                 sleep_ms(20);
             }
             printf(" %d seconds\n", limit / 1000);
+            // printf("You can now enter your morse code!!");
             sleep_ms(200);
             letter_time_start = time_ms();
             seven_segment_init();
@@ -132,7 +136,7 @@ void potentiometerSettings()
         else if (!gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN))
         { // if button1 (left) is NOT and button2 (right) IS pressed
             printf("Default limit: %d seconds \n", limit / 1000);
-            break;
+            break;//Based on: https://www.geeksforgeeks.org/c-break-statement/
         }
         else if (gpio_get(BUTTON1_PIN) && gpio_get(BUTTON2_PIN))
         { // if both pressed
@@ -142,7 +146,7 @@ void potentiometerSettings()
     }
 }
 
-void correctSong()
+void correctSong() //this is called when correct morse code is entered
 {
     unsigned int song[] = {NOTE_A4, NOTE_C5, NOTE_E5, NOTE_A5, NOTE_C5, NOTE_A4};
     unsigned int songLength = sizeof(song) / sizeof(song[0]);
@@ -157,9 +161,9 @@ void correctSong()
     buzzer_quiet();
 }
 
-void holdLetters(char letter)
+void holdLetters(char letter) //this method is to hold the decoded letters of the morse code entered by user in an array
 {
-    if (letter_count < 4)
+    if (letter_count < 4) //if the array is not full the new letter will be added
     {
         decoded_letters[letter_count++] = letter;
         decoded_letters[letter_count] = '\0';
@@ -195,17 +199,17 @@ void holdLetters(char letter)
                 show_rgb(255, 0, 0);
                 sleep_ms(1000);
                 show_rgb(0, 0, 0);
-                exit(0);
+                exit(0);//Based on: https://www.geeksforgeeks.org/exit0-vs-exit1-in-c-c-with-examples/
             }
         }
     }
 }
 
-void decoder(const char *input)
+void decoder(const char *input)//decoder function translates morse code entered to alphabatical letters
 {
     for (int i = 0; i < 26; i++)
     {
-        if (strcmp(input, morse_code[i]) == 0)
+        if (strcmp(input, morse_code[i]) == 0) //Based on: https://www.freecodecamp.org/news/strcmp-in-c-how-to-compare-strings-in-c/
         {
             seven_segment_init();
             seven_segment_show(i);
@@ -232,10 +236,9 @@ void decoder(const char *input)
 
 void Letter()
 {
-    // Decode and display the letter
     if (morse_input_index > 0)
     {                         // Ensure there's input to decode
-        decoder(morse_input); // Decode and display the input
+        decoder(morse_input); //calls decoder function to translate
     }
 
     // Reset for the next letter
@@ -247,7 +250,7 @@ void Letter()
 
 void checkLetterTime()
 { // checking if its over the limit yet
-    if (time_ms() - letter_time_start > limit)
+    if ((time_ms() - letter_time_start) > limit)
     { // if longer than limit
         Letter();
         time_expired = true;
@@ -303,6 +306,9 @@ void checkButton()
 
     // button released
     // buzzer_quiet();      add this in if there issues
+
+
+
     checkLetterTime();
     if (time_expired == true)
     {
@@ -395,10 +401,12 @@ int main()
     gpio_set_dir(BUTTON1_PIN, GPIO_IN);
     gpio_pull_down(BUTTON1_PIN);
     printf("----------------------------------------------------------\n");
+    
     printf("Welcome!\n");
     seven_segment_init();
     sleep_ms(1000);
     seven_segment_off();
+    
 
     potentiometerSettings();
 
