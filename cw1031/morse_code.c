@@ -48,7 +48,6 @@ int main();
 // Morse code dictionary
 // References
 // printing Based: https://www.geeksforgeeks.org/printf-in-c/
-//
 const char morse_code[26][5] = {
     ".-",   // a
     "-...", // b
@@ -147,7 +146,7 @@ void correctSong()
 {
     unsigned int song[] = {NOTE_A4, NOTE_C5, NOTE_E5, NOTE_A5, NOTE_C5, NOTE_A4};
     unsigned int songLength = sizeof(song) / sizeof(song[0]);
-
+    //Looping through each note and playing it
     for (unsigned int i = 0; i < songLength; i++)
     {
         buzzer_enable(song[i]);
@@ -157,7 +156,7 @@ void correctSong()
     }
     buzzer_quiet();
 }
-
+// Holds the 4 letters that were correctly inputted & lets user decide if they would like to continue
 void holdLetters(char letter)
 {
     if (letter_count < 4)
@@ -167,10 +166,11 @@ void holdLetters(char letter)
     }
     if (letter_count == 4)
     {
-        // make a song here
-        
         printf("Your message: %s\n\n", decoded_letters);
+        show_rgb(0, 255, 0);
         correctSong();
+        sleep_ms(200);
+        show_rgb(0, 0, 0);
         sleep_ms(200);
         printf("Would you like to continue?\n");
         printf("(Yes) Left\n");
@@ -203,7 +203,7 @@ void holdLetters(char letter)
 }
 
 void decoder(const char *input)
-{
+{   //Compare input with ever morse code + displays the ones that match
     for (int i = 0; i < 26; i++)
     {
         if (strcmp(input, morse_code[i]) == 0)
@@ -367,13 +367,11 @@ void setup_rgb()
     pwm_init(slice_num, &config, true);
 }
 
-
-
 void errorSong()
 {
     unsigned int song[] = {A4,B4,A4,B4,A4,B4,E3};
     unsigned int songLength = sizeof(song) / sizeof(song[0]);
-
+    //Looping through each note and playing it
     for (unsigned int i = 0; i < songLength; i++)
     {
         buzzer_enable(song[i]);
